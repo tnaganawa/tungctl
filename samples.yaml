@@ -1,0 +1,18 @@
+(venv) [root@ip-172-31-44-217 tungctl]# cat vn3.yml 
+kind: virtual-network
+name: vn3
+subnet: 10.0.3.0
+prefix: 24
+project: k8s-default
+gatewayless: true
+route-target-list:
+  - target:64512:13
+external: true
+(venv) [root@ip-172-31-44-217 tungctl]#
+name: policy11
+project: k8s-default
+network_policy_rule:
+  action: pass
+  src_addresses: default-domain:k8s-default:vn1
+  dst_addresses: default-domain:k8s-default:vn2
+  protocol: any
