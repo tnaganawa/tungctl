@@ -1,3 +1,14 @@
+
+(venv) [root@ip-172-31-44-217 tungctl]#
+kind: network-policy
+name: policy11
+project: k8s-default
+network_policy_rule:
+  action: pass
+  src_addresses: default-domain:k8s-default:vn1
+  dst_addresses: default-domain:k8s-default:vn2
+  protocol: any
+
 (venv) [root@ip-172-31-44-217 tungctl]# cat vn3.yml 
 kind: virtual-network
 name: vn3
@@ -8,11 +19,30 @@ gatewayless: true
 route-target-list:
   - target:64512:13
 external: true
-(venv) [root@ip-172-31-44-217 tungctl]#
-name: policy11
+network_policy_refs:
+ - default-domain:k8s-default:policy11
+
+(venv) [root@ip-172-31-6-58 tungctl]# cat lr1.yaml 
+kind: logical-router
+name: lr1
 project: k8s-default
-network_policy_rule:
-  action: pass
-  src_addresses: default-domain:k8s-default:vn1
-  dst_addresses: default-domain:k8s-default:vn2
-  protocol: any
+(venv) [root@ip-172-31-6-58 tungctl]# 
+
+(venv) [root@ip-172-31-6-58 tungctl]# cat bgprouter1.yaml 
+kind: bgp-router
+name: bgp-router1
+neighbor-address: 172.31.0.11
+autonomous-system: 64513
+router-id: 172.31.0.11
+vendor: VyOS
+(venv) [root@ip-172-31-6-58 tungctl]#
+
+(venv) [root@ip-172-31-6-58 tungctl]# cat service-instance1.yaml 
+kind: service-instance
+name: coredns1
+project: k8s-default
+left_virtual_network: default-domain:k8s-default:vn1
+right_virtual_network: default-domain:k8s-default:vn2
+service_template: l3
+(venv) [root@ip-172-31-6-58 tungctl]#
+
