@@ -9,7 +9,7 @@ subnet: 10.0.21.0
 prefix: 24
 project: k8s-default
 
-# ./tungctl.py /tmp/vn21.yaml 
+# ./tungctl.py create -f /tmp/vn21.yaml 
 {"virtual-network": {"fq_name": ["default-domain", "k8s-default", "vn21"], "parent_uuid": "ee65027b-394d-435f-8843-f6fd7a7fb171", "parent_href": "http://172.31.8.219:8082/project/ee65027b-394d-435f-8843-f6fd7a7fb171", "parent_type": "project", "uuid": "8a612cb2-b279-4c1a-9c12-8cd846ca9b12", "href": "http://172.31.8.219:8082/virtual-network/8a612cb2-b279-4c1a-9c12-8cd846ca9b12", "name": "vn21"}}
 
 (venv) [root@ip-172-31-8-219 ~]# contrail-api-cli --host 172.31.8.219 ls -l virtual-network
