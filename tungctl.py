@@ -26,6 +26,15 @@ else:
 if (not sys.argv[1]=='create' or not sys.argv[2]=='-f'):
  sys.exit(32)
 
+## it's not the correct way to do so :(
+controller_ip = os.popen ("ip -o route get 8.8.8.8 | awk '{print $7}'").read ().rstrip()
+vnc_api_headers= {"Content-Type": "application/json", "charset": "UTF-8"}
+
+def empty_func():
+ pass
+
+do_finally=empty_func
+
 kind = js["kind"]
 
 if (kind == "virtual-network"):
@@ -116,6 +125,8 @@ elif (kind == "network-policy"):
     }
   """ % (project, name, action, src_addr, dst_addr, protocol)
   jsondict = json.loads(jsonstring)
+  if ("apply_service_list" in np_rule.keys()):
+    jsondict["network-policy"]["network_policy_entries"]["policy_rule"][0]["action_list"]["apply_service"]=np_rule["apply_service_list"]
 elif (kind == "logical-router"):
   name=js["name"]
   project=js["project"]
@@ -132,6 +143,13 @@ elif (kind == "logical-router"):
   }
   """ % (project, name)
   jsondict = json.loads(jsonstring)
+  if ("connected_interfaces" in js.keys()):
+    jsondict["logical-router"]["virtual_machine_interface_refs"]=[]
+    for uuid in js["connected_interfaces"]:
+      r = requests.post ("http://{}:8082/id-to-fqname".format(controller_ip), data='{"uuid": "%s"}' % uuid, headers=vnc_api_headers)
+      #print (r.text)
+      fqname = json.loads(r.text)["fq_name"]
+      jsondict["logical-router"]["virtual_machine_interface_refs"].append ({"uuid": uuid, "to": fqname})
 elif (kind == "bgp-router"):
   name=js["name"]
   neighbor_address=js["neighbor-address"]
@@ -175,6 +193,14 @@ elif (kind == "service-instance"):
       ], 
       "parent_type": "project",
       "service_instance_properties": {
+        "interface_list": [
+          {
+            "virtual_network": "%s"
+          }, 
+          {
+            "virtual_network": "%s"
+          }
+        ],
         "left_virtual_network": "%s",
         "right_virtual_network": "%s"
       }, 
@@ -187,19 +213,72 @@ elif (kind == "service-instance"):
         }
       ]
     }
-  }""" % (project, name, left_virtual_network, right_virtual_network, service_template)
+  }""" % (project, name, left_virtual_network, right_virtual_network, left_virtual_network, right_virtual_network, service_template)
   jsondict = json.loads(jsonstring)
+elif (kind == "virtual-machine-interface"):
+  name=js["name"]
+  project=js["project"]
+  virtual_network=js["virtual-network"]
+  jsonstring = """
+  {"virtual-machine-interface":
+    {
+      "fq_name": [
+        "default-domain", 
+        "%s", 
+        "%s"
+      ], 
+      "parent_type": "project",
+      "virtual_machine_interface_device_owner": "network:router_interface", 
+      "virtual_network_refs": [
+        {
+          "to": [
+            "default-domain", 
+            "%s", 
+            "%s"
+          ] 
+        }
+      ]
+    }
+  }
+  """ % (project, name, project, virtual_network)
+  jsondict = json.loads(jsonstring)
+elif (kind == "port-tuple"):
+  name=js["name"]
+  project=js["project"]
+  jsonstring = """
+  {"port-tuple":
+    {
+      "fq_name": [
+        "default-domain", 
+        "%s", 
+        "%s", 
+        "%s"
+      ], 
+      "parent_type": "service-instance"
+    }
+  }
+  """ % (project, name, name)
+  jsondict = json.loads(jsonstring)
+  if ("connected_vmis" in js.keys()):
+    def update_vmis_to_attach_to_port_tuple():
+      port_tuple_refs=[{"to": ["default-domain", project, name, name]}]
+      for uuid in js["connected_vmis"]:
+        r = requests.get ("http://{}:8082/virtual-machine-interface/{}".format(controller_ip, uuid))
+        #print (r.text)
+        tmp_js = json.loads(r.text)
+        tmp_js["virtual-machine-interface"]["port_tuple_refs"]=port_tuple_refs
+        print (json.dumps(tmp_js))
+        r = requests.put ("http://{}:8082/virtual-machine-interface/{}".format(controller_ip, uuid), data=json.dumps(tmp_js), headers=vnc_api_headers)
+        print (r.text, "aaa")
+    do_finally = update_vmis_to_attach_to_port_tuple
 
-
-print (jsondict)
 jsonstring = json.dumps(jsondict)
+print (jsonstring)
 
 #with open (jsonname, 'w') as f:
 # f.write (json)
 
-## it's not the correct way to do so :(
-controller_ip = os.popen ("ip -o route get 8.8.8.8 | awk '{print $7}'").read ().rstrip()
-
-headers= {"Content-Type": "application/json", "charset": "UTF-8"}
-r = requests.post ("http://{}:8082/{}s".format(controller_ip, kind), data=jsonstring, headers=headers)
+r = requests.post ("http://{}:8082/{}s".format(controller_ip, kind), data=jsonstring, headers=vnc_api_headers)
 print (r.text)
+
+do_finally()

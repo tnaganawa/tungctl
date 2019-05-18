@@ -1,14 +1,4 @@
 
-(venv) [root@ip-172-31-44-217 tungctl]#
-kind: network-policy
-name: policy11
-project: k8s-default
-network_policy_rule:
-  action: pass
-  src_addresses: default-domain:k8s-default:vn1
-  dst_addresses: default-domain:k8s-default:vn2
-  protocol: any
-
 (venv) [root@ip-172-31-44-217 tungctl]# cat vn3.yml 
 kind: virtual-network
 name: vn3
@@ -22,13 +12,17 @@ external: true
 network_policy_refs:
  - default-domain:k8s-default:policy11
 
-(venv) [root@ip-172-31-6-58 tungctl]# cat lr1.yaml 
-kind: logical-router
-name: lr1
+(venv) [root@ip-172-31-44-217 tungctl]#
+kind: network-policy
+name: policy11
 project: k8s-default
-(venv) [root@ip-172-31-6-58 tungctl]# 
+network_policy_rule:
+  action: pass
+  src_addresses: default-domain:k8s-default:vn1
+  dst_addresses: default-domain:k8s-default:vn2
+  protocol: any
 
-(venv) [root@ip-172-31-6-58 tungctl]# cat bgprouter1.yaml 
+(venv) [root@ip-172-31-6-58 tungctl]# cat bgp-router1.yaml 
 kind: bgp-router
 name: bgp-router1
 neighbor-address: 172.31.0.11
@@ -36,6 +30,21 @@ autonomous-system: 64513
 router-id: 172.31.0.11
 vendor: VyOS
 (venv) [root@ip-172-31-6-58 tungctl]#
+
+(venv) [root@ip-172-31-2-70 tungctl]# cat vmi1.yaml
+kind: virtual-machine-interface
+name: lr1-vn2
+project: k8s-default
+virtual-network: vn2
+(venv) [root@ip-172-31-2-70 tungctl]#
+
+(venv) [root@ip-172-31-2-70 tungctl]# cat lr1.yaml 
+kind: logical-router
+name: lr1
+project: k8s-default
+connected_interfaces:
+ - 45758754-57a3-490f-96c1-535281cf84e5 ## virtual-machine-interface's uuid
+(venv) [root@ip-172-31-2-70 tungctl]# 
 
 (venv) [root@ip-172-31-6-58 tungctl]# cat service-instance1.yaml 
 kind: service-instance
@@ -46,3 +55,23 @@ right_virtual_network: default-domain:k8s-default:vn2
 service_template: l3
 (venv) [root@ip-172-31-6-58 tungctl]#
 
+(venv) [root@ip-172-31-2-70 tungctl]# cat port-tuple1.yaml 
+kind: port-tuple
+name: vn1-to-vn2
+project: k8s-default
+connected_vmis:
+  - d078d8de-794f-11e9-bd4b-0697eb000a3e ## vmi uuid which is connected to service instance
+(venv) [root@ip-172-31-2-70 tungctl]# 
+
+(venv) [root@ip-172-31-2-70 tungctl]# cat policy1.yaml 
+kind: network-policy
+name: policy1
+project: k8s-default
+network_policy_rule:
+  action: pass
+  src_addresses: default-domain:k8s-default:vn1
+  dst_addresses: default-domain:k8s-default:vn2
+  protocol: any
+  apply_service_list:
+    - default-domain:k8s-default:vn1-to-vn2 
+(venv) [root@ip-172-31-2-70 tungctl]#
