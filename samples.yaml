@@ -75,3 +75,10 @@ network_policy_rule:
   apply_service_list:
     - default-domain:k8s-default:vn1-to-vn2 
 (venv) [root@ip-172-31-2-70 tungctl]#
+
+(venv) [root@ip-172-31-13-132 tungctl]# cat vm1.yaml 
+kind: virtual-machine
+name: vm1
+virtual-machine-interface: ec0bce25-7a2d-47e4-a3b0-7772f15f3b5f ## created by tungsten fabric webui
+(venv) [root@ip-172-31-13-132 tungctl]# 
+

@@ -269,8 +269,31 @@ elif (kind == "port-tuple"):
         tmp_js["virtual-machine-interface"]["port_tuple_refs"]=port_tuple_refs
         print (json.dumps(tmp_js))
         r = requests.put ("http://{}:8082/virtual-machine-interface/{}".format(controller_ip, uuid), data=json.dumps(tmp_js), headers=vnc_api_headers)
-        print (r.text, "aaa")
+        print (r.text)
     do_finally = update_vmis_to_attach_to_port_tuple
+elif (kind == "virtual-machine"):
+  name=js["name"]
+  jsonstring = """
+  {"virtual-machine":
+    {
+      "fq_name": [
+        "%s"
+      ] 
+    }
+  }
+  """ % (name)
+  jsondict = json.loads(jsonstring)
+  if ("virtual-machine-interface" in js.keys()):
+    def update_vmis_to_attach_to_virtual_machine():
+      virtual_machine_refs=[{"to": [name]}]
+      uuid = js["virtual-machine-interface"]
+      r = requests.get ("http://{}:8082/virtual-machine-interface/{}".format(controller_ip, uuid))
+      tmp_js = json.loads(r.text)
+      tmp_js["virtual-machine-interface"]["virtual_machine_refs"]=virtual_machine_refs
+      print (json.dumps(tmp_js))
+      r = requests.put ("http://{}:8082/virtual-machine-interface/{}".format(controller_ip, uuid), data=json.dumps(tmp_js), headers=vnc_api_headers)
+      print (r.text)
+    do_finally = update_vmis_to_attach_to_virtual_machine
 
 jsonstring = json.dumps(jsondict)
 print (jsonstring)
