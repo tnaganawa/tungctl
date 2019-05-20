@@ -80,5 +80,6 @@ network_policy_rule:
 kind: virtual-machine
 name: vm1
 virtual-machine-interface: ec0bce25-7a2d-47e4-a3b0-7772f15f3b5f ## created by tungsten fabric webui
+uuid: fe08c069-0c28-40a2-a087-0afca5be1111 ## virtual-machine's uuid
 (venv) [root@ip-172-31-13-132 tungctl]# 
 

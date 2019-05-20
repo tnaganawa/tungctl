@@ -273,15 +273,17 @@ elif (kind == "port-tuple"):
     do_finally = update_vmis_to_attach_to_port_tuple
 elif (kind == "virtual-machine"):
   name=js["name"]
+  uuid=js["uuid"]
   jsonstring = """
   {"virtual-machine":
     {
       "fq_name": [
         "%s"
-      ] 
+      ],
+      "uuid": "%s"
     }
   }
-  """ % (name)
+  """ % (name, uuid)
   jsondict = json.loads(jsonstring)
   if ("virtual-machine-interface" in js.keys()):
     def update_vmis_to_attach_to_virtual_machine():
