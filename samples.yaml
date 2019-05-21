@@ -83,3 +83,21 @@ virtual-machine-interface: ec0bce25-7a2d-47e4-a3b0-7772f15f3b5f ## created by tu
 uuid: fe08c069-0c28-40a2-a087-0afca5be1111 ## virtual-machine's uuid
 (venv) [root@ip-172-31-13-132 tungctl]# 
 
+
+(venv) [root@ip-172-31-2-244 tungctl]# cat vmi1.yaml 
+kind: virtual-machine-interface 
+name: vmi1
+uuid: 49b2d402-c8d4-3ab2-a3bb-e008a2eb66f4 ## optional
+project: k8s-default 
+virtual-network: k8s-default-pod-network
+(venv) [root@ip-172-31-2-244 tungctl]#
+
+(venv) [root@ip-172-31-2-244 tungctl]# cat instance-ip1.yaml 
+kind: instance-ip
+name: instance-ip1
+instance_ip_address: 10.46.254.1
+project: k8s-default 
+virtual_machine_interface: vmi1
+virtual_network: k8s-default-pod-network
+(venv) [root@ip-172-31-2-244 tungctl]# 
+

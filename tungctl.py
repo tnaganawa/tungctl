@@ -228,7 +228,6 @@ elif (kind == "virtual-machine-interface"):
         "%s"
       ], 
       "parent_type": "project",
-      "virtual_machine_interface_device_owner": "network:router_interface", 
       "virtual_network_refs": [
         {
           "to": [
@@ -242,6 +241,9 @@ elif (kind == "virtual-machine-interface"):
   }
   """ % (project, name, project, virtual_network)
   jsondict = json.loads(jsonstring)
+  if ("uuid" in js.keys()):
+    jsondict["virtual-machine-interface"]["uuid"]=js["uuid"]
+
 elif (kind == "port-tuple"):
   name=js["name"]
   project=js["project"]
@@ -296,6 +298,42 @@ elif (kind == "virtual-machine"):
       r = requests.put ("http://{}:8082/virtual-machine-interface/{}".format(controller_ip, uuid), data=json.dumps(tmp_js), headers=vnc_api_headers)
       print (r.text)
     do_finally = update_vmis_to_attach_to_virtual_machine
+elif (kind == "instance-ip"):
+  name=js["name"]
+  project=js["project"]
+  instance_ip_address=js["instance_ip_address"]
+  virtual_machine_interface=js["virtual_machine_interface"]
+  virtual_network=js["virtual_network"]
+  jsonstring = """
+  {"instance-ip":
+    {
+      "fq_name": [
+        "%s"
+      ], 
+      "instance_ip_address": "%s", 
+      "virtual_machine_interface_refs": [
+        {
+          "to": [
+            "default-domain", 
+            "%s", 
+            "%s"
+          ] 
+        }
+      ], 
+      "virtual_network_refs": [
+        {
+          "to": [
+            "default-domain", 
+            "%s", 
+            "%s"
+          ] 
+        }
+      ]
+    }
+  }
+  """ % (name, instance_ip_address, project, virtual_machine_interface, project, virtual_network)
+  jsondict = json.loads(jsonstring)
+
 
 jsonstring = json.dumps(jsondict)
 print (jsonstring)
