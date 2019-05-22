@@ -243,6 +243,10 @@ elif (kind == "virtual-machine-interface"):
   jsondict = json.loads(jsonstring)
   if ("uuid" in js.keys()):
     jsondict["virtual-machine-interface"]["uuid"]=js["uuid"]
+  if ("mac-address" in js.keys()):
+    jsondict["virtual-machine-interface"]["virtual_machine_interface_mac_addresses"]={"mac_address": [js["mac-address"]]}
+  if ("virtual_machine_refs" in js.keys()):
+    jsondict["virtual-machine-interface"]["virtual_machine_refs"]=[{"to": [js["virtual_machine_refs"]]}]
 
 elif (kind == "port-tuple"):
   name=js["name"]
@@ -275,18 +279,19 @@ elif (kind == "port-tuple"):
     do_finally = update_vmis_to_attach_to_port_tuple
 elif (kind == "virtual-machine"):
   name=js["name"]
-  uuid=js["uuid"]
   jsonstring = """
   {"virtual-machine":
     {
       "fq_name": [
         "%s"
-      ],
-      "uuid": "%s"
+      ]
     }
   }
-  """ % (name, uuid)
+  """ % (name)
   jsondict = json.loads(jsonstring)
+  if ("uuid" in js.keys()):
+    uuid=js["uuid"]
+    jsondict["virtual-machine"]["uuid"]=js["uuid"]
   if ("virtual-machine-interface" in js.keys()):
     def update_vmis_to_attach_to_virtual_machine():
       virtual_machine_refs=[{"to": [name]}]
