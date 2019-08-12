@@ -103,3 +103,19 @@ virtual_machine_interface: vmi1
 virtual_network: k8s-default-pod-network
 (venv) [root@ip-172-31-2-244 tungctl]# 
 
+
+- several objects can be created from one file
+(venv) [root@ip-172-31-16-215 ~]# cat vn3.yaml 
+kind: virtual-network
+name: vn3
+subnet: 10.0.3.0
+prefix: 24
+project: k8s-default
+---
+kind: virtual-network
+name: vn4
+subnet: 10.0.4.0
+prefix: 24
+project: k8s-default
+(venv) [root@ip-172-31-16-215 ~]#
+
