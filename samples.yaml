@@ -119,3 +119,25 @@ prefix: 24
 project: k8s-default
 (venv) [root@ip-172-31-16-215 ~]#
 
+
+(venv) [root@ip-172-31-1-169 tungctl]# cat lb1.yaml 
+kind: loadbalancer
+name: lb1
+project: k8s-default
+---
+kind: loadbalancer-listener
+name: lb1-listener
+project: k8s-default
+loadbalancer_name: lb1
+---
+kind: loadbalancer-pool
+name: lb1-pool
+project: k8s-default
+---
+kind: loadbalancer-member
+name: lb1-member1
+project: k8s-default
+loadbalancer_pool_name: lb1-pool
+(venv) [root@ip-172-31-1-169 tungctl]# 
+
+

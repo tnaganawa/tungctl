@@ -339,6 +339,72 @@ for js in yamls:
     }
     """ % (name, instance_ip_address, project, virtual_machine_interface, project, virtual_network)
     jsondict = json.loads(jsonstring)
+  elif (kind == "loadbalancer"):
+    name=js["name"]
+    project=js["project"]
+    jsonstring = """
+    {"loadbalancer":
+      {
+        "fq_name": [
+          "default-domain", "%s", "%s"
+        ], 
+        "parent_type": "project"
+      }
+    }
+    """ % (project, name)
+    jsondict = json.loads(jsonstring)
+  elif (kind == "loadbalancer-listener"):
+    name=js["name"]
+    project=js["project"]
+    loadbalancer_name=js["loadbalancer_name"]
+    jsonstring = """
+    {"loadbalancer-listener":
+      {
+        "fq_name": [
+          "default-domain", "%s", "%s"
+        ], 
+        "loadbalancer_refs": [
+          {
+            "to": [
+              "default-domain", 
+              "%s", 
+              "%s"
+            ]
+          }
+        ]
+      }
+    }
+    """ % (project, name, project, loadbalancer_name)
+    jsondict = json.loads(jsonstring)
+  elif (kind == "loadbalancer-pool"):
+    name=js["name"]
+    project=js["project"]
+    jsonstring = """
+    {"loadbalancer-pool":
+      {
+        "fq_name": [
+          "default-domain", "%s", "%s"
+        ], 
+        "parent_type": "project"
+      }
+    }
+    """ % (project, name)
+    jsondict = json.loads(jsonstring)
+  elif (kind == "loadbalancer-member"):
+    name=js["name"]
+    project=js["project"]
+    loadbalancer_pool_name=js["loadbalancer_pool_name"]
+    jsonstring = """
+    {"loadbalancer-member":
+      {
+        "fq_name": [
+          "default-domain", "%s", "%s", "%s"
+        ], 
+        "parent_type": "loadbalancer-pool"
+      }
+    }
+    """ % (project, loadbalancer_pool_name, name)
+    jsondict = json.loads(jsonstring)
   
   
   jsonstring = json.dumps(jsondict)
